@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academic Search Engine</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d28;
+    --border: #2a2e3d;
+    --text: #e8e9ee;
+    --text-dim: #9a9db0;
+    --accent: #6366f1;
+    --keyword: #378ADD;
+    --semantic: #1D9E75;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+  }
+  .container { max-width: 780px; margin: 0 auto; padding: 48px 20px; }
+  h1 {
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+  .search-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  button {
+    padding: 12px 22px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  button:hover { opacity: 0.9; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .alpha-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .alpha-row input[type="range"] { flex: 1; }
+  #status { text-align: center; color: var(--text-dim); font-size: 14px; margin: 20px 0; }
+  .result {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .result-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+  }
+  .result-title a { color: var(--text); text-decoration: none; }
+  .result-title a:hover { color: var(--accent); }
+  .result-snippet {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 0 0 10px 0;
+  }
+  .bar {
+    height: 5px;
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    background: #2a2e3d;
+    margin-bottom: 6px;
+  }
+  .score-labels {
+    display: flex;
+    gap: 14px;
+    font-size: 11px;
+  }
+  .kw-label { color: var(--keyword); }
+  .sem-label { color: var(--semantic); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Academic Search Engine</h1>
+  <p class="subtitle">Hybrid keyword + semantic search over research papers</p>
+
+  <div class="search-row">
+    <input type="text" id="query" placeholder="Search papers... e.g. transformer attention mechanism" />
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <div class="alpha-row">
+    <span>keyword</span>
+    <input type="range" id="alpha" min="0" max="1" step="0.05" value="0.5" />
+    <span>semantic</span>
+  </div>
+
+  <div id="status"></div>
+  <div id="results"></div>
+</div>
+
+<script>
+  // Change this if your API runs on a different host/port.
+  const API_BASE = "http://127.0.0.1:8000";
+
+  const queryInput = document.getElementById("query");
+  const searchBtn = document.getElementById("searchBtn");
+  const alphaInput = document.getElementById("alpha");
+  const statusEl = document.getElementById("status");
+  const resultsEl = document.getElementById("results");
+
+  async function runSearch() {
+    const q = queryInput.value.trim();
+    if (!q) return;
+    const alpha = alphaInput.value;
+
+    searchBtn.disabled = true;
+    statusEl.textContent = "Searching...";
+    resultsEl.innerHTML = "";
+
+    try {
+      const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}&alpha=${alpha}&top_k=10`);
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
+      const data = await res.json();
+      renderResults(data.results);
+    } catch (err) {
+      statusEl.textContent = "Error: could not reach the API. Is uvicorn running on " + API_BASE + "?";
+      console.error(err);
+      return;
+    }
+    searchBtn.disabled = false;
+  }
+
+  function renderResults(results) {
+    if (!results || results.length === 0) {
+      statusEl.textContent = "No results found.";
+      resultsEl.innerHTML = "";
+      return;
+    }
+    statusEl.textContent = `${results.length} results`;
+    resultsEl.innerHTML = results.map(r => {
+      const kwPct = Math.round(r.keyword_score * 100);
+      const semPct = Math.round(r.semantic_score * 100);
+      return `
+        <div class="result">
+          <p class="result-title"><a href="${r.url}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a></p>
+          <p class="result-snippet">${escapeHtml(r.snippet)}...</p>
+          <div class="bar">
+            <div style="width:${kwPct}%; background: var(--keyword);"></div>
+            <div style="width:${semPct}%; background: var(--semantic);"></div>
+          </div>
+          <div class="score-labels">
+            <span class="kw-label">keyword ${kwPct}</span>
+            <span class="sem-label">semantic ${semPct}</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  searchBtn.addEventListener("click", runSearch);
+  queryInput.addEventListener("keydown", e => { if (e.key === "Enter") runSearch(); });
+</script>
+</body>
+</html>
