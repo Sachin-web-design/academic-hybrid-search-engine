@@ -3,191 +3,394 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Academic Search Engine</title>
+<title>Academic Search</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 <style>
-  :root {
-    --bg: #0f1117;
-    --card: #1a1d28;
-    --border: #2a2e3d;
-    --text: #e8e9ee;
-    --text-dim: #9a9db0;
-    --accent: #6366f1;
-    --keyword: #378ADD;
-    --semantic: #1D9E75;
-  }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #ffffff;
+    color: #202124;
+    font-family: Arial, "Helvetica Neue", sans-serif;
     min-height: 100vh;
   }
-  .container { max-width: 780px; margin: 0 auto; padding: 48px 20px; }
-  h1 {
-    font-size: 26px;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 4px;
-  }
-  .subtitle {
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 14px;
-    margin-bottom: 32px;
-  }
-  .search-row {
+
+  /* ---------- HOME (centered, Google-style) ---------- */
+  #home {
     display: flex;
-    gap: 10px;
-    margin-bottom: 14px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 90vh;
+    padding: 0 20px;
+    position: relative;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.25s ease;
   }
-  input[type="text"] {
-    flex: 1;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--text);
-    font-size: 15px;
-    outline: none;
+  #home.hidden { display: none; }
+  #home::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 500px;
+    background: radial-gradient(ellipse at center,
+      rgba(66,133,244,0.08) 0%,
+      rgba(52,168,83,0.06) 35%,
+      rgba(255,255,255,0) 70%);
+    pointer-events: none;
+    z-index: 0;
   }
-  input[type="text"]:focus { border-color: var(--accent); }
-  button {
-    padding: 12px 22px;
-    border-radius: 10px;
-    border: none;
-    background: var(--accent);
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
+  #home > * { position: relative; z-index: 1; }
+
+  .logo {
+    font-size: 56px;
     font-weight: 500;
+    margin-bottom: 6px;
+    letter-spacing: -1px;
   }
-  button:hover { opacity: 0.9; }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .alpha-row {
+  .logo span:nth-child(1) { color: #4285F4; }
+  .logo span:nth-child(2) { color: #EA4335; }
+  .logo span:nth-child(3) { color: #FBBC05; }
+  .logo span:nth-child(4) { color: #4285F4; }
+  .logo span:nth-child(5) { color: #34A853; }
+  .logo span:nth-child(6) { color: #EA4335; }
+
+  .tagline {
+    font-size: 13.5px;
+    color: #70757a;
+    margin-bottom: 26px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tagline .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #34A853;
+    display: inline-block;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: 584px;
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 30px;
-    font-size: 13px;
-    color: var(--text-dim);
+    border: 1px solid #dfe1e5;
+    border-radius: 24px;
+    padding: 11px 18px;
+    box-shadow: 0 1px 6px rgba(32,33,36,0.12);
+    transition: box-shadow 0.2s ease;
+  }
+  .search-box:hover, .search-box.focused { box-shadow: 0 1px 10px rgba(32,33,36,0.24); }
+  .search-box svg { flex-shrink: 0; color: #9aa0a6; }
+  .search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #202124;
+  }
+
+  .buttons-row {
+    margin-top: 26px;
+    display: flex;
+    gap: 10px;
+  }
+  .gbtn {
+    background: #f8f9fa;
+    border: 1px solid #f8f9fa;
+    border-radius: 4px;
+    color: #3c4043;
+    font-size: 14px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .gbtn:hover { border-color: #dadce0; box-shadow: 0 1px 4px rgba(0,0,0,0.12); transform: translateY(-1px); }
+
+  .alpha-row {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #70757a;
+    width: 100%;
+    max-width: 320px;
   }
   .alpha-row input[type="range"] { flex: 1; }
-  #status { text-align: center; color: var(--text-dim); font-size: 14px; margin: 20px 0; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, #4285F4, #34A853);
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #4285F4;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  /* ---------- RESULTS (top bar) ---------- */
+  #resultsPage { display: none; opacity: 0; transition: opacity 0.25s ease; }
+  #resultsPage.visible { display: block; }
+  #resultsPage.show { opacity: 1; }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 16px 32px;
+    border-bottom: 1px solid #ebebeb;
+  }
+  .top-logo { font-size: 22px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .top-logo span:nth-child(1) { color: #4285F4; }
+  .top-logo span:nth-child(2) { color: #EA4335; }
+  .top-logo span:nth-child(3) { color: #FBBC05; }
+  .top-logo span:nth-child(4) { color: #4285F4; }
+  .top-logo span:nth-child(5) { color: #34A853; }
+  .top-logo span:nth-child(6) { color: #EA4335; }
+
+  .top-search-box {
+    flex: 1;
+    max-width: 600px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #dfe1e5;
+    border-radius: 24px;
+    padding: 9px 16px;
+    transition: box-shadow 0.2s ease;
+  }
+  .top-search-box:hover, .top-search-box.focused { box-shadow: 0 1px 6px rgba(32,33,36,0.18); }
+  .top-search-box input { flex: 1; border: none; outline: none; font-size: 15px; color: #202124; }
+  .top-search-box svg { flex-shrink: 0; color: #9aa0a6; }
+
+  .top-alpha { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #70757a; width: 140px; }
+  .top-alpha input[type="range"] { flex: 1; }
+
+  .results-container { max-width: 640px; padding: 20px 32px; }
+  .status-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  #status { color: #70757a; font-size: 13px; }
+  .toggle-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #70757a; cursor: pointer; user-select: none; }
+  .toggle-row input { cursor: pointer; width: auto; }
+
   .result {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 18px;
-    margin-bottom: 12px;
+    margin-bottom: 22px;
+    padding: 12px 14px;
+    margin-left: -14px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
   }
-  .result-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin: 0 0 6px 0;
-  }
-  .result-title a { color: var(--text); text-decoration: none; }
-  .result-title a:hover { color: var(--accent); }
-  .result-snippet {
-    font-size: 13.5px;
-    color: var(--text-dim);
-    line-height: 1.5;
-    margin: 0 0 10px 0;
-  }
-  .bar {
-    height: 5px;
-    border-radius: 3px;
-    overflow: hidden;
-    display: flex;
-    background: #2a2e3d;
-    margin-bottom: 6px;
-  }
-  .score-labels {
-    display: flex;
-    gap: 14px;
-    font-size: 11px;
-  }
-  .kw-label { color: var(--keyword); }
-  .sem-label { color: var(--semantic); }
+  .result:hover { background: #f8f9fb; }
+  .result-url { font-size: 13px; color: #202124; margin: 0 0 2px 0; }
+  .result-title { font-size: 18px; margin: 0 0 4px 0; }
+  .result-title a { color: #1a0dab; text-decoration: none; }
+  .result-title a:hover { text-decoration: underline; }
+  .result-snippet { font-size: 13.5px; color: #4d5156; line-height: 1.5; margin: 0 0 8px 0; }
+  .result-snippet mark { background: #fef2c0; color: inherit; border-radius: 2px; padding: 0 1px; }
+
+  .bar { height: 4px; border-radius: 2px; overflow: hidden; display: flex; background: #e8eaed; margin-bottom: 4px; max-width: 200px; }
+  .score-labels { display: flex; gap: 10px; font-size: 10.5px; }
+  .kw-label { color: #4285F4; }
+  .sem-label { color: #34A853; }
+  .score-block { display: none; margin-top: 6px; }
+  body.show-scores .score-block { display: block; }
+
+  /* Loading shimmer */
+  .skeleton { margin-bottom: 22px; }
+  .skel-line { height: 12px; border-radius: 4px; background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; margin-bottom: 8px; }
+  .skel-line.w1 { width: 30%; height: 10px; }
+  .skel-line.w2 { width: 60%; height: 16px; }
+  .skel-line.w3 { width: 95%; }
+  .skel-line.w4 { width: 80%; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .footer-note { max-width: 640px; margin: 30px 32px; padding-top: 14px; border-top: 1px solid #f0f0f0; font-size: 11.5px; color: #9aa0a6; }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Academic Search Engine</h1>
-  <p class="subtitle">Hybrid keyword + semantic search over research papers</p>
 
-  <div class="search-row">
-    <input type="text" id="query" placeholder="Search papers... e.g. transformer attention mechanism" />
-    <button id="searchBtn">Search</button>
+<!-- HOME VIEW -->
+<div id="home">
+  <div class="logo"><span>A</span><span>c</span><span>a</span><span>d</span><span>e</span><span>mic</span></div>
+  <div class="tagline"><span class="dot"></span><span id="paperCount">Hybrid keyword + semantic search over research papers</span></div>
+  <div class="search-box" id="homeBox">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="homeInput" placeholder="Search research papers..." autofocus />
   </div>
-
+  <div class="buttons-row">
+    <button class="gbtn" id="homeSearchBtn">Academic Search</button>
+    <button class="gbtn" id="randomBtn">I'm Feeling Curious</button>
+  </div>
   <div class="alpha-row">
     <span>keyword</span>
-    <input type="range" id="alpha" min="0" max="1" step="0.05" value="0.5" />
+    <input type="range" id="homeAlpha" min="0" max="1" step="0.05" value="0.5" />
     <span>semantic</span>
   </div>
+</div>
 
-  <div id="status"></div>
-  <div id="results"></div>
+<!-- RESULTS VIEW -->
+<div id="resultsPage">
+  <div class="top-bar">
+    <div class="top-logo" id="topLogo"><span>A</span><span>c</span><span>a</span><span>d</span><span>e</span><span>mic</span></div>
+    <div class="top-search-box" id="topBox">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="topInput" />
+    </div>
+    <div class="top-alpha">
+      <span>KW</span>
+      <input type="range" id="topAlpha" min="0" max="1" step="0.05" value="0.5" />
+      <span>SEM</span>
+    </div>
+  </div>
+  <div class="results-container">
+    <div class="status-row">
+      <div id="status"></div>
+      <label class="toggle-row">
+        <input type="checkbox" id="showScoresToggle" />
+        Show ranking details
+      </label>
+    </div>
+    <div id="results"></div>
+    <div class="footer-note">Ranked using a hybrid of BM25 keyword search and sentence-embedding semantic search (FAISS), fused at query time.</div>
+  </div>
 </div>
 
 <script>
-  // Change this if your API runs on a different host/port.
   const API_BASE = "http://127.0.0.1:8000";
 
-  const queryInput = document.getElementById("query");
-  const searchBtn = document.getElementById("searchBtn");
-  const alphaInput = document.getElementById("alpha");
+  const home = document.getElementById("home");
+  const resultsPage = document.getElementById("resultsPage");
+  const homeInput = document.getElementById("homeInput");
+  const topInput = document.getElementById("topInput");
+  const homeAlpha = document.getElementById("homeAlpha");
+  const topAlpha = document.getElementById("topAlpha");
   const statusEl = document.getElementById("status");
   const resultsEl = document.getElementById("results");
+  const paperCountEl = document.getElementById("paperCount");
 
-  async function runSearch() {
-    const q = queryInput.value.trim();
+  // Fetch corpus size for the homepage tagline.
+  fetch(`${API_BASE}/health`).then(r => r.json()).then(d => {
+    if (d.docs_indexed) {
+      paperCountEl.textContent = `Searching over ${d.docs_indexed} research papers with hybrid AI ranking`;
+    }
+  }).catch(() => {});
+
+  document.getElementById("homeBox").addEventListener("click", () => homeInput.focus());
+  homeInput.addEventListener("focus", () => document.getElementById("homeBox").classList.add("focused"));
+  homeInput.addEventListener("blur", () => document.getElementById("homeBox").classList.remove("focused"));
+  document.getElementById("topBox").addEventListener("click", () => topInput.focus());
+  topInput.addEventListener("focus", () => document.getElementById("topBox").classList.add("focused"));
+  topInput.addEventListener("blur", () => document.getElementById("topBox").classList.remove("focused"));
+
+  document.getElementById("topLogo").addEventListener("click", goHome);
+  document.getElementById("showScoresToggle").addEventListener("change", e => {
+    document.body.classList.toggle("show-scores", e.target.checked);
+  });
+  document.getElementById("randomBtn").addEventListener("click", () => {
+    const samples = ["neural networks", "information retrieval", "transformer models", "question answering", "text classification"];
+    homeInput.value = samples[Math.floor(Math.random() * samples.length)];
+    search(homeInput.value, homeAlpha.value);
+  });
+
+  function goHome() {
+    resultsPage.classList.remove("show");
+    setTimeout(() => {
+      resultsPage.classList.remove("visible");
+      home.classList.remove("hidden");
+    }, 200);
+    homeInput.value = "";
+    homeInput.focus();
+  }
+
+  function showSkeleton() {
+    resultsEl.innerHTML = Array(4).fill(`
+      <div class="skeleton">
+        <div class="skel-line w1"></div>
+        <div class="skel-line w2"></div>
+        <div class="skel-line w3"></div>
+        <div class="skel-line w4"></div>
+      </div>
+    `).join("");
+  }
+
+  async function search(q, alpha) {
+    q = q.trim();
     if (!q) return;
-    const alpha = alphaInput.value;
 
-    searchBtn.disabled = true;
-    statusEl.textContent = "Searching...";
-    resultsEl.innerHTML = "";
+    home.classList.add("hidden");
+    resultsPage.classList.add("visible");
+    requestAnimationFrame(() => resultsPage.classList.add("show"));
+    topInput.value = q;
+    topAlpha.value = alpha;
+
+    statusEl.textContent = "";
+    showSkeleton();
+    const t0 = performance.now();
 
     try {
       const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(q)}&alpha=${alpha}&top_k=10`);
       if (!res.ok) throw new Error(`API returned ${res.status}`);
       const data = await res.json();
-      renderResults(data.results);
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+      renderResults(data.results, q, elapsed);
     } catch (err) {
-      statusEl.textContent = "Error: could not reach the API. Is uvicorn running on " + API_BASE + "?";
+      statusEl.textContent = "Could not reach the API. Is uvicorn running on " + API_BASE + "?";
+      resultsEl.innerHTML = "";
       console.error(err);
-      return;
     }
-    searchBtn.disabled = false;
   }
 
-  function renderResults(results) {
+  function renderResults(results, query, elapsed) {
     if (!results || results.length === 0) {
       statusEl.textContent = "No results found.";
       resultsEl.innerHTML = "";
       return;
     }
-    statusEl.textContent = `${results.length} results`;
+    statusEl.textContent = `About ${results.length} results (${elapsed} seconds)`;
+    const terms = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+
     resultsEl.innerHTML = results.map(r => {
       const kwPct = Math.round(r.keyword_score * 100);
       const semPct = Math.round(r.semantic_score * 100);
       return `
         <div class="result">
-          <p class="result-title"><a href="${r.url}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a></p>
-          <p class="result-snippet">${escapeHtml(r.snippet)}...</p>
-          <div class="bar">
-            <div style="width:${kwPct}%; background: var(--keyword);"></div>
-            <div style="width:${semPct}%; background: var(--semantic);"></div>
-          </div>
-          <div class="score-labels">
-            <span class="kw-label">keyword ${kwPct}</span>
-            <span class="sem-label">semantic ${semPct}</span>
+          <p class="result-url">${escapeHtml(r.url)}</p>
+          <p class="result-title"><a href="${r.url}" target="_blank" rel="noopener">${highlight(r.title, terms)}</a></p>
+          <p class="result-snippet">${highlight(r.snippet, terms)}...</p>
+          <div class="score-block">
+            <div class="bar">
+              <div style="width:${kwPct}%; background:#4285F4;"></div>
+              <div style="width:${semPct}%; background:#34A853;"></div>
+            </div>
+            <div class="score-labels">
+              <span class="kw-label">keyword ${kwPct}</span>
+              <span class="sem-label">semantic ${semPct}</span>
+            </div>
           </div>
         </div>
       `;
     }).join("");
+  }
+
+  function highlight(text, terms) {
+    let escaped = escapeHtml(text);
+    terms.forEach(t => {
+      const re = new RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "ig");
+      escaped = escaped.replace(re, "<mark>$1</mark>");
+    });
+    return escaped;
   }
 
   function escapeHtml(str) {
@@ -196,8 +399,10 @@
     return div.innerHTML;
   }
 
-  searchBtn.addEventListener("click", runSearch);
-  queryInput.addEventListener("keydown", e => { if (e.key === "Enter") runSearch(); });
+  document.getElementById("homeSearchBtn").addEventListener("click", () => search(homeInput.value, homeAlpha.value));
+  homeInput.addEventListener("keydown", e => { if (e.key === "Enter") search(homeInput.value, homeAlpha.value); });
+  topInput.addEventListener("keydown", e => { if (e.key === "Enter") search(topInput.value, topAlpha.value); });
+  topAlpha.addEventListener("change", () => search(topInput.value, topAlpha.value));
 </script>
 </body>
 </html>
