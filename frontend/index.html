@@ -197,6 +197,8 @@
   .result-title { font-size: 18px; margin: 0 0 4px 0; }
   .result-title a { color: #1a0dab; text-decoration: none; }
   .result-title a:hover { text-decoration: underline; }
+  .result-meta { font-size: 12px; color: #70757a; margin: 0 0 6px 0; }
+  .result-meta .cat-chip { display: inline-block; background: #f1f3f4; color: #5f6368; border-radius: 8px; padding: 1px 8px; margin-right: 6px; font-size: 10.5px; }
   .result-snippet { font-size: 13.5px; color: #4d5156; line-height: 1.5; margin: 0 0 8px 0; }
   .result-snippet mark { background: #fef2c0; color: inherit; border-radius: 2px; padding: 0 1px; }
 
@@ -368,6 +370,7 @@
         <div class="result">
           <p class="result-url">${escapeHtml(r.url)}</p>
           <p class="result-title"><a href="${r.url}" target="_blank" rel="noopener">${highlight(r.title, terms)}</a></p>
+          <p class="result-meta">${authorLine(r.authors, r.published)}${categoryChips(r.categories)}</p>
           <p class="result-snippet">${highlight(r.snippet, terms)}...</p>
           <div class="score-block">
             <div class="bar">
@@ -382,6 +385,18 @@
         </div>
       `;
     }).join("");
+  }
+
+  function authorLine(authors, published) {
+    if (!authors || authors.length === 0) return "";
+    let names = authors.slice(0, 3).join(", ");
+    if (authors.length > 3) names += " et al.";
+    return published ? `${escapeHtml(names)} &middot; ${escapeHtml(published)} &nbsp; ` : `${escapeHtml(names)} &nbsp; `;
+  }
+
+  function categoryChips(categories) {
+    if (!categories || categories.length === 0) return "";
+    return categories.slice(0, 3).map(c => `<span class="cat-chip">${escapeHtml(c)}</span>`).join("");
   }
 
   function highlight(text, terms) {

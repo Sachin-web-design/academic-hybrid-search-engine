@@ -57,11 +57,15 @@ class HybridSearcher:
         ranked = np.argsort(-hybrid)[:top_k]
         results = []
         for i in ranked:
+            doc = self.docs[i]
             results.append(
                 {
-                    "title": self.docs[i]["title"],
-                    "url": self.docs[i]["url"],
-                    "snippet": self.docs[i]["text"][:200],
+                    "title": doc["title"],
+                    "url": doc["url"],
+                    "snippet": doc["text"][:220],
+                    "authors": doc.get("authors", []),
+                    "categories": doc.get("categories", []),
+                    "published": doc.get("published", ""),
                     "score": float(hybrid[i]),
                     "keyword_score": float(kw_norm[i]),
                     "semantic_score": float(sem_norm[i]),

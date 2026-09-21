@@ -42,13 +42,16 @@ def fetch_batch(query: str, start: int, max_results: int) -> feedparser.FeedPars
 
 
 def paper_to_doc(entry) -> dict:
-    authors = ", ".join(a.name for a in getattr(entry, "authors", []))
-    categories = ", ".join(t["term"] for t in getattr(entry, "tags", []))
-    text = f"{entry.summary.strip()} Authors: {authors}. Categories: {categories}."
+    authors = [a.name for a in getattr(entry, "authors", [])]
+    categories = [t["term"] for t in getattr(entry, "tags", [])]
+    published = getattr(entry, "published", "")[:10]  # just the date part
     return {
         "url": entry.link,
         "title": entry.title.strip().replace("\n", " "),
-        "text": text,
+        "text": entry.summary.strip().replace("\n", " "),  # clean abstract, used for search/embeddings
+        "authors": authors,
+        "categories": categories,
+        "published": published,
     }
 
 
